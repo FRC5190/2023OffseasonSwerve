@@ -9,6 +9,7 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class SwerveModule {
@@ -24,6 +25,9 @@ public class SwerveModule {
     // Control
     private final PIDController drive_pid_controller_; // in m/s
     private final PIDController steer_pid_controller_; // in radians
+
+    // State
+    private int enc_id_;
 
     // Constructor
     public SwerveModule(int kDriveMotorID, int kSteerMotorID, int kCanCoderID){
@@ -47,6 +51,9 @@ public class SwerveModule {
         config.unitString = "rad";
         config.sensorTimeBase = SensorTimeBase.PerSecond;
         cancoder_.configAllSettings(config);
+
+        // CANCoder id used for Smart Dashboard
+        enc_id_ = kCanCoderID;
 
         // Initialize PID controllers
         drive_pid_controller_ = new PIDController(Constants.kDriveKp, 0.0, 0.0);
@@ -102,6 +109,8 @@ public class SwerveModule {
     }
 
     public void setDesiredState(SwerveModuleState state){
+        // Smart Dashboard
+        SmartDashboard.putNumber("Swerve[" + enc_id_ + "]", getCANCoderRad());
         state = SwerveModuleState.optimize(state, getState().angle);
 
         // double desiredDrive = state.speedMetersPerSecond / Constants.kMaxSpeed;

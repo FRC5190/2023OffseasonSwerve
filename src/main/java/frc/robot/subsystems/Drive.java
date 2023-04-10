@@ -12,6 +12,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 // import com.ctre.phoenix.sensors.PigeonIMU_StatusFrame;
 // import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Drive extends SubsystemBase{
     
@@ -85,6 +86,7 @@ public class Drive extends SubsystemBase{
     }
 
     public double getYaw() {
+        SmartDashboard.putNumber("Gyro Heading", gyro_.getYaw());
         return Math.toRadians(gyro_.getYaw()); // returns degrees
     }
 
@@ -107,6 +109,8 @@ public class Drive extends SubsystemBase{
     @Override
     public void periodic(){
         odometer_.update(getRotation2d(), getSwerveModulePositions());
+        SmartDashboard.putNumber("Robot Heading", getYaw());
+        SmartDashboard.putNumber("Robot Theta", getPose().getRotation().getDegrees());
     }
     
     public void stopModules() {
