@@ -77,7 +77,7 @@ public class Drive extends SubsystemBase {
     }
 
     public Rotation2d getRotation2d() {
-        return Rotation2d.fromDegrees(getYaw());
+        return Rotation2d.fromRadians(getYaw());
     }
 
     public Pose2d getPose() {
