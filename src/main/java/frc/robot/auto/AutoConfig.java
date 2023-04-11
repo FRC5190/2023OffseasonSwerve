@@ -8,6 +8,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.subsystems.Drive;
 
 public class AutoConfig {
+    // Subsystems
+    public static final Drive drive_ = new Drive();
     // Constraints
     public static final double kMaxVelocity = 2.5;
     public static final double kMaxAcceleration = 1.9;
@@ -15,7 +17,7 @@ public class AutoConfig {
 
     // Trajectory Configs
     public static final TrajectoryConfig kConfig = 
-        new TrajectoryConfig(kMaxVelocity, kMaxAcceleration).setKinematics(Drive.getKinematics());
+        new TrajectoryConfig(kMaxVelocity, kMaxAcceleration).setKinematics(drive_.getKinematics());
 
     // PID Controllers
     private static PIDController xController = new PIDController(Constants.kPXController, 0.0, 0.0);

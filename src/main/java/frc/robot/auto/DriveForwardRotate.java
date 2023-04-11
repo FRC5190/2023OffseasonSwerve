@@ -41,7 +41,7 @@ public class DriveForwardRotate extends SequentialCommandGroup{
         SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
             t1, 
             drive_ :: getPose, 
-            Drive.getKinematics(), 
+            drive_.getKinematics(), 
             AutoConfig.getController(), 
             drive_::setModuleStates, 
             drive_);
