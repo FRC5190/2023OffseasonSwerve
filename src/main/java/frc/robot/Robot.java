@@ -5,8 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.auto.AutoSelector;
 import frc.robot.commands.DriveTeleop;
 import frc.robot.subsystems.Drive;
 
@@ -26,6 +28,12 @@ public class Robot extends TimedRobot {
   // Field Oriented
   boolean fieldOriented_ = true;
 
+  // Autonomous Command
+  private Command autonomousCommand_; 
+
+  // Auto Selector
+  private final AutoSelector auto_selector_ = new AutoSelector();
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -41,7 +49,10 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    auto_selector_.run(drive_).schedule();
+    System.out.println("Auto Enabled");
+  }
 
   @Override
   public void autonomousPeriodic() {}

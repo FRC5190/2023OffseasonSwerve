@@ -42,7 +42,8 @@ public class Drive extends SubsystemBase{
 
 
     // Creating Kinematics object
-    SwerveDriveKinematics kinematics_ = new SwerveDriveKinematics(
+    // ***Does making this static affect anything at all?***
+    static SwerveDriveKinematics kinematics_ = new SwerveDriveKinematics(
         Constants.kFrontLeftLocation,
         Constants.kFrontRightLocation,
         Constants.kBackLeftLocation,
@@ -102,7 +103,7 @@ public class Drive extends SubsystemBase{
         odometer_.resetPosition(getRotation2d(), getSwerveModulePositions(), pose);
     }
 
-    public SwerveDriveKinematics getKinematics() {
+    public static SwerveDriveKinematics getKinematics() {
         return kinematics_;
     }
 
