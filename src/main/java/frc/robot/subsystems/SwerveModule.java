@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import com.ctre.phoenix.sensors.SensorTimeBase;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.PIDController;
@@ -28,12 +27,21 @@ public class SwerveModule {
 
     // State
     private final int enc_id_;
+    private final double enc_offset_;
 
     // Constructor
     public SwerveModule(Configuration configuration) {
         // Initialize motor controllers
         drive_motor_ = new CANSparkMax(configuration.drive_id, CANSparkMax.MotorType.kBrushless);
         steer_motor_ = new CANSparkMax(configuration.steer_id, CANSparkMax.MotorType.kBrushless);
+
+        drive_motor_.restoreFactoryDefaults();
+        steer_motor_.restoreFactoryDefaults();
+
+        drive_motor_.setIdleMode(CANSparkMax.IdleMode.kBrake);
+        steer_motor_.setIdleMode(CANSparkMax.IdleMode.kBrake);
+
+        steer_motor_.setInverted(true);
 
         // Initialize encoders
         drive_encoder_ = drive_motor_.getEncoder();
@@ -43,22 +51,23 @@ public class SwerveModule {
                 2 * Math.PI * Constants.kWheelRadius / Constants.kDriveGearRatio / 60);
 
         steer_encoder_ = steer_motor_.getEncoder();
-        steer_encoder_.setPositionConversionFactor(2 * Math.PI * Constants.kSteerGearRatio);
-        steer_encoder_.setVelocityConversionFactor(2 * Math.PI * Constants.kSteerGearRatio / 60);
+        steer_encoder_.setPositionConversionFactor(2 * Math.PI / Constants.kSteerGearRatio);
+        steer_encoder_.setVelocityConversionFactor(2 * Math.PI / Constants.kSteerGearRatio / 60);
 
         cancoder_ = new CANCoder(configuration.cancoder_id);
         cancoder_.configFactoryDefault();
         CANCoderConfiguration config = new CANCoderConfiguration();
         // set units of the CANCoder to radians, with velocity being radians per second
-        config.sensorCoefficient = 2 * Math.PI / 4096.0;
-        config.unitString = "rad";
-        config.sensorTimeBase = SensorTimeBase.PerSecond;
+//        config.sensorCoefficient = 2 * Math.PI / 4096.0;
+//        config.unitString = "rad";
+//        config.sensorTimeBase = SensorTimeBase.PerSecond;
         config.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
-        config.magnetOffsetDegrees = configuration.module_offset_deg;
+        config.magnetOffsetDegrees = 0;
         cancoder_.configAllSettings(config);
 
         // CANCoder id used for Smart Dashboard
         enc_id_ = configuration.cancoder_id;
+        enc_offset_ = configuration.module_offset_deg;
 
         // Initialize PID controllers
         drive_pid_controller_ = new PIDController(Constants.kDriveKp, 0.0, 0.0);
@@ -79,13 +88,13 @@ public class SwerveModule {
     }
 
     // Get Steer Position
-    public double getSteerPosition() {
-        return steer_encoder_.getPosition();
+    public Rotation2d getSteerPosition() {
+        return new Rotation2d(steer_encoder_.getPosition() % (2 * Math.PI));
     }
 
     // Get Module Position
     public SwerveModulePosition getModulePosition() {
-        return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getSteerPosition()));
+        return new SwerveModulePosition(getDrivePosition(), getSteerPosition());
     }
 
     // Get Drive Velocity
@@ -101,31 +110,39 @@ public class SwerveModule {
     }
 
     // Get CANCoder Absolute Position
-    public double getCANCoderRad() {
-        return cancoder_.getAbsolutePosition();
+    public double getCANCoderDeg() {
+        return cancoder_.getAbsolutePosition() - enc_offset_;
     }
 
     // Reset Encoders
     public void resetEncoders() {
         drive_encoder_.setPosition(0);
-        steer_encoder_.setPosition(getCANCoderRad());
+        steer_encoder_.setPosition(Math.toRadians(getCANCoderDeg()));
     }
 
     // Get Module State
     public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getSteerPosition()));
+        return new SwerveModuleState(getDriveVelocity(), getSteerPosition());
+    }
+
+    public void periodic() {
+//        SmartDashboard.putNumber("Swerve[" + enc_id_ + "]", getSteerPosition().getDegrees());
+//        SmartDashboard.putNumber("Swerve[" + enc_id_ + "] V", getDriveVelocity());
+
+        SmartDashboard.putNumber("Swerve[" + enc_id_ + "]", steer_pid_controller_.getPositionError());
+//        drive_motor_.set(drive_pid_controller_.calculate(getDriveVelocity()));
+        drive_motor_.set(drive_pid_controller_.getSetpoint());
+        steer_motor_.set(steer_pid_controller_.calculate(getSteerPosition().getRadians()));
     }
 
     // Set Desired State
     public void setDesiredState(SwerveModuleState state) {
         // Add telemetry to SmartDashboard
-        SmartDashboard.putNumber("Swerve[" + enc_id_ + "]", getCANCoderRad());
         state = SwerveModuleState.optimize(state, getState().angle);
 
-        drive_motor_.set(
-                drive_pid_controller_.calculate(getDriveVelocity(), state.speedMetersPerSecond));
-        steer_motor_.set(
-                steer_pid_controller_.calculate(getSteerPosition(), state.angle.getRadians()));
+        drive_pid_controller_.setSetpoint(state.speedMetersPerSecond);
+        steer_pid_controller_.setSetpoint(state.angle.getRadians());
+
     }
 
     // Stop Motors
@@ -146,8 +163,8 @@ public class SwerveModule {
     // Constants Class
     private static class Constants {
         // Control (TODO: tune)
-        public static final double kDriveKp = 1.0;
-        public static final double kSteerKp = 1.0;
+        public static final double kDriveKp = 0.5;
+        public static final double kSteerKp = 0.5;
 
         // Hardware
         public static double kDriveGearRatio = 8.14;

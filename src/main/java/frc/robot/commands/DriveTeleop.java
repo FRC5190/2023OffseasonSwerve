@@ -16,8 +16,8 @@ public class DriveTeleop extends CommandBase{
     public DriveTeleop(Drive drive, CommandXboxController controller, Boolean fieldOriented){
         drive_ = drive;
         controller_ = controller;
-        fieldOriented_ = fieldOriented;
-        
+        fieldOriented_ = true;
+
         addRequirements(drive_);
     }
 
@@ -27,16 +27,17 @@ public class DriveTeleop extends CommandBase{
     @Override
     public void execute() {
         // Joystick input
-        double xSpeed = controller_.getLeftX();
-        double ySpeed = controller_.getLeftY();
-        double turnSpeed = controller_.getRightX();
+        double xSpeed = controller_.getLeftX() * 0.3;
+        double ySpeed = controller_.getLeftY() * 0.3;
+        double turnSpeed = controller_.getRightX() * 0.5;
 
         // Might add deadzone/deadband later
 
         // Converts joystick input to desired chassis speeds
         ChassisSpeeds chassisSpeeds;
-        chassisSpeeds = (fieldOriented_) ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, turnSpeed, drive_.getRotation2d()) : new ChassisSpeeds(xSpeed, ySpeed, turnSpeed);
-        
+        chassisSpeeds = (fieldOriented_) ? ChassisSpeeds.fromFieldRelativeSpeeds(-ySpeed, -xSpeed, -turnSpeed, drive_.getRotation2d()) :
+                new ChassisSpeeds(-ySpeed, -xSpeed, -turnSpeed);
+
         // Converts the desired chassis speeds to module states
         SwerveModuleState[] moduleStates = drive_.getKinematics().toSwerveModuleStates(chassisSpeeds);
 

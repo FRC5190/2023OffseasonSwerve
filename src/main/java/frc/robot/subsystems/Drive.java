@@ -34,8 +34,7 @@ public class Drive extends SubsystemBase {
             Constants.kBackRightLocation
     );
 
-    SwerveDriveOdometry odometer_ = new SwerveDriveOdometry(kinematics_, getRotation2d(),
-            getSwerveModulePositions());
+    SwerveDriveOdometry odometer_;
 
     // Constructor
     public Drive() {
@@ -55,6 +54,9 @@ public class Drive extends SubsystemBase {
             } catch (Exception ignored) {
             }
         }).start();
+
+        odometer_ = new SwerveDriveOdometry(kinematics_, getRotation2d(),
+                getSwerveModulePositions());
     }
 
     // Methods
@@ -77,7 +79,7 @@ public class Drive extends SubsystemBase {
     }
 
     public Rotation2d getRotation2d() {
-        return Rotation2d.fromRadians(getYaw());
+        return Rotation2d.fromRadians(-getYaw());
     }
 
     public Pose2d getPose() {
@@ -97,6 +99,10 @@ public class Drive extends SubsystemBase {
         odometer_.update(getRotation2d(), getSwerveModulePositions());
         SmartDashboard.putNumber("Robot Heading", getYaw());
         SmartDashboard.putNumber("Robot Theta", getPose().getRotation().getDegrees());
+        front_left_.periodic();
+        front_right_.periodic();
+        back_left_.periodic();
+        back_right_.periodic();
     }
 
     public void stopModules() {
@@ -136,22 +142,22 @@ public class Drive extends SubsystemBase {
             kFrontLeftConfig.drive_id = 1;
             kFrontLeftConfig.steer_id = 2;
             kFrontLeftConfig.cancoder_id = 11;
-            kFrontLeftConfig.module_offset_deg = 0;
+            kFrontLeftConfig.module_offset_deg = 9.49;
 
             kFrontRightConfig.drive_id = 3;
             kFrontRightConfig.steer_id = 4;
             kFrontRightConfig.cancoder_id = 12;
-            kFrontRightConfig.module_offset_deg = 0;
+            kFrontRightConfig.module_offset_deg = 267.13;
 
             kBackLeftConfig.drive_id = 5;
             kBackLeftConfig.steer_id = 6;
             kBackLeftConfig.cancoder_id = 13;
-            kBackLeftConfig.module_offset_deg = 0;
+            kBackLeftConfig.module_offset_deg = 295.57;
 
             kBackRightConfig.drive_id = 7;
             kBackRightConfig.steer_id = 8;
             kBackRightConfig.cancoder_id = 14;
-            kBackRightConfig.module_offset_deg = 0;
+            kBackRightConfig.module_offset_deg = 279.58;
         }
 
         // Gyro ID
@@ -161,9 +167,9 @@ public class Drive extends SubsystemBase {
         public static final int kMaxSpeed = 1;
 
         // * UPDATE BASED ON DRIVETRAIN CONSTRUCTION *
-        public static final Translation2d kFrontLeftLocation = new Translation2d(0.381, 0.381);
-        public static final Translation2d kFrontRightLocation = new Translation2d(0.381, -0.381);
-        public static final Translation2d kBackLeftLocation = new Translation2d(-0.381, 0.381);
-        public static final Translation2d kBackRightLocation = new Translation2d(-0.381, -0.381);
+        public static final Translation2d kFrontLeftLocation = new Translation2d(0.27, 0.27);
+        public static final Translation2d kFrontRightLocation = new Translation2d(0.27, -0.27);
+        public static final Translation2d kBackLeftLocation = new Translation2d(-0.27, 0.27);
+        public static final Translation2d kBackRightLocation = new Translation2d(-0.27, -0.27);
     }
 }
