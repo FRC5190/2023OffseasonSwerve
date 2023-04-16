@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -19,57 +17,54 @@ import frc.robot.subsystems.Drive;
  * project.
  */
 public class Robot extends TimedRobot {
-  // Subsystems
-  private final Drive drive_ = new Drive();
+    // Subsystems
+    private final Drive drive_ = new Drive();
 
-  // Xbox controller
-  private final CommandXboxController controller_ = new CommandXboxController(0);
+    // Robot State
+    private final RobotState robot_state_ = new RobotState(drive_);
 
-  // Field Oriented
-  boolean fieldOriented_ = true;
+    // Xbox Controller
+    private final CommandXboxController controller_ = new CommandXboxController(0);
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
-  @Override
-  public void robotInit() {
-    drive_.setDefaultCommand(new DriveTeleop(drive_, controller_, fieldOriented_));
-  }
+    @Override
+    public void robotInit() {
+        drive_.setDefaultCommand(new DriveTeleop(drive_, robot_state_, controller_));
+    }
 
-  @Override
-  public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
-  }
+    @Override
+    public void robotPeriodic() {
+        CommandScheduler.getInstance().run();
+        robot_state_.update();
+    }
 
-  @Override
-  public void autonomousInit() {}
+    @Override
+    public void autonomousInit() {}
 
-  @Override
-  public void autonomousPeriodic() {}
+    @Override
+    public void autonomousPeriodic() {}
 
-  @Override
-  public void teleopInit() {
-  }
+    @Override
+    public void teleopInit() {
+    }
 
-  @Override
-  public void teleopPeriodic() {}
+    @Override
+    public void teleopPeriodic() {}
 
-  @Override
-  public void disabledInit() {}
+    @Override
+    public void disabledInit() {}
 
-  @Override
-  public void disabledPeriodic() {}
+    @Override
+    public void disabledPeriodic() {}
 
-  @Override
-  public void testInit() {}
+    @Override
+    public void testInit() {}
 
-  @Override
-  public void testPeriodic() {}
+    @Override
+    public void testPeriodic() {}
 
-  @Override
-  public void simulationInit() {}
+    @Override
+    public void simulationInit() {}
 
-  @Override
-  public void simulationPeriodic() {}
+    @Override
+    public void simulationPeriodic() {}
 }

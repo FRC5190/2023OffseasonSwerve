@@ -1,11 +1,10 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SPI;
@@ -13,129 +12,117 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drive extends SubsystemBase {
-
-    // Pigeon 2.0 Gyro
-    // private WPI_Pigeon2 gyro_;
-
-    // navX Gyro
-    private AHRS gyro_;
-
-    // Create instances for each Swerve Module
+    // Swerve Module Instances
     private final SwerveModule front_left_ = new SwerveModule(Constants.kFrontLeftConfig);
     private final SwerveModule front_right_ = new SwerveModule(Constants.kFrontRightConfig);
     private final SwerveModule back_left_ = new SwerveModule(Constants.kBackLeftConfig);
     private final SwerveModule back_right_ = new SwerveModule(Constants.kBackRightConfig);
 
-    // Create kinematics object
-    SwerveDriveKinematics kinematics_ = new SwerveDriveKinematics(
-            Constants.kFrontLeftLocation,
-            Constants.kFrontRightLocation,
-            Constants.kBackLeftLocation,
-            Constants.kBackRightLocation
-    );
+    // Swerve Modules Array
+    private final SwerveModule[] modules_ = {front_left_, front_right_, back_left_, back_right_};
 
-    SwerveDriveOdometry odometer_;
+    // navX Gyro
+    private final AHRS gyro_;
+
+    // Kinematics
+    SwerveDriveKinematics kinematics_ = new SwerveDriveKinematics(
+        Constants.kFrontLeftLocation, Constants.kFrontRightLocation,
+        Constants.kBackLeftLocation, Constants.kBackRightLocation);
+
+    // IO
+    private final IO io_ = new IO();
+    private OutputType output_type_ = OutputType.OPEN_LOOP;
 
     // Constructor
     public Drive() {
         // Initialize Gyro
         gyro_ = new AHRS(SPI.Port.kMXP);
-
-        // Pigeon 2.0 Gyro
-        // gyro_ = new WPI_Pigeon2(Constants.kGyroId);
-        // gyro_.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_9_SixDeg_YPR, 10);
-
-
-        // Thread delays the zeroing of the gyro but allows other stuff to continue happening
         new Thread(() -> {
             try {
+                // Wait for 1 second (hardware initialization) before zeroing heading
                 Thread.sleep(1000);
-                zeroHeading();
+                gyro_.zeroYaw();
             } catch (Exception ignored) {
             }
         }).start();
-
-        odometer_ = new SwerveDriveOdometry(kinematics_, getRotation2d(),
-                getSwerveModulePositions());
-    }
-
-    // Methods
-    public SwerveModulePosition[] getSwerveModulePositions() {
-        return new SwerveModulePosition[]{
-                front_left_.getModulePosition(),
-                front_right_.getModulePosition(),
-                back_left_.getModulePosition(),
-                back_right_.getModulePosition(),
-        };
-    }
-
-    public void zeroHeading() {
-        gyro_.reset();
-    }
-
-    public double getYaw() {
-        SmartDashboard.putNumber("Gyro Heading", gyro_.getYaw());
-        return Math.toRadians(gyro_.getYaw()); // returns degrees
-    }
-
-    public Rotation2d getRotation2d() {
-        return Rotation2d.fromRadians(-getYaw());
-    }
-
-    public Pose2d getPose() {
-        return odometer_.getPoseMeters();
-    }
-
-    public void resetOdometry(Pose2d pose) {
-        odometer_.resetPosition(getRotation2d(), getSwerveModulePositions(), pose);
-    }
-
-    public SwerveDriveKinematics getKinematics() {
-        return kinematics_;
     }
 
     @Override
     public void periodic() {
-        odometer_.update(getRotation2d(), getSwerveModulePositions());
-        SmartDashboard.putNumber("Robot Heading", getYaw());
-        SmartDashboard.putNumber("Robot Theta", getPose().getRotation().getDegrees());
-        front_left_.periodic();
-        front_right_.periodic();
-        back_left_.periodic();
-        back_right_.periodic();
+        // Read inputs
+        io_.angle = -Math.toRadians(gyro_.getYaw());
+
+        // Calculate outputs
+        SwerveModuleState[] module_states = kinematics_.toSwerveModuleStates(io_.speeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(module_states, Constants.kMaxSpeed);
+
+        // Set outputs and telemetry
+        for (int i = 0; i < modules_.length; i++) {
+            modules_[i].setDesiredState(module_states[i], output_type_);
+
+            SmartDashboard.putNumber(String.format("Module [%d] Speed", i),
+                modules_[i].getDriveVelocity());
+            SmartDashboard.putNumber(String.format("Module [%d] Angle", i),
+                modules_[i].getSteerPosition().getDegrees());
+        }
     }
 
-    public void stopModules() {
-        front_left_.stop();
-        front_right_.stop();
-        back_left_.stop();
-        back_right_.stop();
+    // Get Module Positions
+    public SwerveModulePosition[] getSwerveModulePositions() {
+        return new SwerveModulePosition[]{
+            front_left_.getModulePosition(),
+            front_right_.getModulePosition(),
+            back_left_.getModulePosition(),
+            back_right_.getModulePosition(),
+        };
     }
 
-    public void setModuleStates(SwerveModuleState[] desiredStates) {
-        // Incase any module is given a speed that is higher than the max,
-        // desaturateWheelSpeeds() will reduce all of the module speeds until all module speeds
-        // are under the limit
-        SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates,
-                Constants.kMaxSpeed);
+    // Get Gyro Angle
+    public Rotation2d getAngle() {
+        return new Rotation2d(io_.angle);
+    }
 
-        front_left_.setDesiredState(desiredStates[0]);
-        front_right_.setDesiredState(desiredStates[1]);
-        back_left_.setDesiredState(desiredStates[2]);
-        back_right_.setDesiredState(desiredStates[3]);
+    // Get Kinematics
+    public SwerveDriveKinematics getKinematics() {
+        return kinematics_;
+    }
+
+    // Set Speeds
+    public void setSpeeds(ChassisSpeeds speeds, OutputType output_type) {
+        io_.speeds = speeds;
+        output_type_ = output_type;
+    }
+
+    // Set Speeds (Closed Loop)
+    public void setSpeeds(ChassisSpeeds speeds) {
+        setSpeeds(speeds, OutputType.VELOCITY);
+    }
+
+    // Output Type
+    public enum OutputType {
+        VELOCITY, OPEN_LOOP
+    }
+
+    // IO
+    private static class IO {
+        // Inputs
+        double angle;
+
+        // Outputs
+        ChassisSpeeds speeds = new ChassisSpeeds();
     }
 
     // Constants Class
     private static class Constants {
         // Swerve Modules
         public static final SwerveModule.Configuration kFrontLeftConfig =
-                new SwerveModule.Configuration();
+            new SwerveModule.Configuration();
         public static final SwerveModule.Configuration kFrontRightConfig =
-                new SwerveModule.Configuration();
+            new SwerveModule.Configuration();
         public static final SwerveModule.Configuration kBackLeftConfig =
-                new SwerveModule.Configuration();
+            new SwerveModule.Configuration();
         public static final SwerveModule.Configuration kBackRightConfig =
-                new SwerveModule.Configuration();
+            new SwerveModule.Configuration();
 
         // Initialize Swerve Module Constants
         static {
@@ -160,13 +147,10 @@ public class Drive extends SubsystemBase {
             kBackRightConfig.module_offset_deg = 279.58;
         }
 
-        // Gyro ID
-        public static final int kGyroId = 17;
-
         // Max Velocity
-        public static final int kMaxSpeed = 1;
+        public static final double kMaxSpeed = 3.66;
 
-        // * UPDATE BASED ON DRIVETRAIN CONSTRUCTION *
+        // Module Locations
         public static final Translation2d kFrontLeftLocation = new Translation2d(0.27, 0.27);
         public static final Translation2d kFrontRightLocation = new Translation2d(0.27, -0.27);
         public static final Translation2d kBackLeftLocation = new Translation2d(-0.27, 0.27);
