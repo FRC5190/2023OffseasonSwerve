@@ -98,6 +98,14 @@ public class Drive extends SubsystemBase {
         setSpeeds(speeds, OutputType.VELOCITY);
     }
 
+    // Puts wheels in X shape for brake
+    public void HoldPosition() {
+        front_left_.setAngle(45);
+        front_right_.setAngle(-45);
+        back_left_.setAngle(-45);
+        back_right_.setAngle(45);
+    }
+
     // Output Type
     public enum OutputType {
         VELOCITY, OPEN_LOOP

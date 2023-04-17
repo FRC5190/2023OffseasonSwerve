@@ -32,6 +32,7 @@ public class DriveTeleop extends CommandBase {
         double ySpeed = -controller_.getLeftX() * Constants.kTranslationMultiplier;
         double rSpeed = -controller_.getRightX() * Constants.kRotationMultiplier;
         boolean robot_oriented = controller_.rightTrigger(0.2).getAsBoolean();
+        boolean hold_position_mode = controller_.x().getAsBoolean();
 
         // Create chassis speeds
         ChassisSpeeds speeds = robot_oriented ?
@@ -40,7 +41,12 @@ public class DriveTeleop extends CommandBase {
                 robot_state_.getPosition().getRotation());
 
         // Set speeds
-        drive_.setSpeeds(speeds, Drive.OutputType.OPEN_LOOP);
+        if (hold_position_mode) {
+            drive_.HoldPosition();
+        }
+        else{
+            drive_.setSpeeds(speeds, Drive.OutputType.OPEN_LOOP);
+        }
     }
 
     // Constants

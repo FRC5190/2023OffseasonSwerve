@@ -104,6 +104,20 @@ public class SwerveModule {
         steer_encoder_.setPosition(Math.toRadians(getCANCoderDeg()));
     }
 
+    /**
+     * Sets Steer angle for individual module
+     * @param desired_angle In Degrees
+     */
+    public void setAngle(double desired_angle_degs) {
+        // Convert deg to rad
+        double desired_angle_rad = Math.toRadians(desired_angle_degs);
+
+        // Set steer angle
+        double steering_correction = steer_pid_controller_.calculate(
+            getSteerPosition().getRadians(), desired_angle_rad);
+        steer_motor_.set(steering_correction);
+    }
+
     // Set Desired State
     public void setDesiredState(SwerveModuleState state, Drive.OutputType output_type) {
         // Optimize state to minimize change in angle
