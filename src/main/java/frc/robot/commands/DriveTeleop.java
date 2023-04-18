@@ -28,8 +28,11 @@ public class DriveTeleop extends CommandBase {
     @Override
     public void execute() {
         // Inputs input
-        double xSpeed = -controller_.getLeftY() * Constants.kTranslationMultiplier;
-        double ySpeed = -controller_.getLeftX() * Constants.kTranslationMultiplier;
+        boolean precise_mode = controller_.leftTrigger(0.2).getAsBoolean();
+        double sensitivity = (precise_mode) ? Constants.kTranslationMultiplierPrecise : 
+            Constants.kTranslationMultiplierRegular;
+        double xSpeed = -controller_.getLeftY() * sensitivity;
+        double ySpeed = -controller_.getLeftX() * sensitivity;
         double rSpeed = -controller_.getRightX() * Constants.kRotationMultiplier;
         boolean robot_oriented = controller_.rightTrigger(0.2).getAsBoolean();
         boolean hold_position_mode = controller_.x().getAsBoolean();
@@ -52,7 +55,8 @@ public class DriveTeleop extends CommandBase {
     // Constants
     private static class Constants {
         // Joystick Multiplier (percent -> speed)
-        public static final double kTranslationMultiplier = 2.5;
+        public static final double kTranslationMultiplierRegular = 2.5;
+        public static final double kTranslationMultiplierPrecise = 1.3;
         public static final double kRotationMultiplier = Math.PI;
     }
 }
