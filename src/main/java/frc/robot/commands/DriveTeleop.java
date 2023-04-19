@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -13,6 +14,9 @@ public class DriveTeleop extends CommandBase {
 
     // Xbox Controller
     private final CommandXboxController controller_;
+
+    // Slew rate limiter
+    private SlewRateLimiter limiter_;
 
     // Constructor
     public DriveTeleop(Drive drive, RobotState robot_state, CommandXboxController controller) {
@@ -38,6 +42,11 @@ public class DriveTeleop extends CommandBase {
         boolean robot_oriented = controller_.rightTrigger(0.2).getAsBoolean();
         boolean hold_position_mode = controller_.x().getAsBoolean();
 
+        // Slew rate limiter
+        limiter_.calculate(Constants.kSlewRateLimiter);
+        xSpeed = limiter_.calculate(xSpeed);
+        ySpeed = limiter_.calculate(ySpeed);
+
         // Create chassis speeds
         ChassisSpeeds speeds = robot_oriented ?
             new ChassisSpeeds(xSpeed, ySpeed, rSpeed) :
@@ -60,6 +69,8 @@ public class DriveTeleop extends CommandBase {
         public static final double kTranslationMultiplierPrecise = 1.3;
         public static final double kRotationMultiplier = Math.PI;
 
+        // Slew rate limiter
+        public static final double kSlewRateLimiter = 0.5;
         // Deadzone
         public static final double kDeadzone = 0.05;
     }
