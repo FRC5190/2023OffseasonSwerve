@@ -31,9 +31,10 @@ public class DriveTeleop extends CommandBase {
         boolean precise_mode = controller_.leftTrigger(0.2).getAsBoolean();
         double sensitivity = (precise_mode) ? Constants.kTranslationMultiplierPrecise : 
             Constants.kTranslationMultiplierRegular;
-        double xSpeed = -controller_.getLeftY() * sensitivity;
-        double ySpeed = -controller_.getLeftX() * sensitivity;
-        double rSpeed = -controller_.getRightX() * Constants.kRotationMultiplier;
+        double xSpeed = (Math.abs(controller_.getLeftY()) > Constants.kDeadzone) ? -controller_.getLeftY() * sensitivity : 0;
+        double ySpeed = (Math.abs(controller_.getLeftX()) > Constants.kDeadzone) ? -controller_.getLeftX() * sensitivity : 0;
+        double rSpeed = (Math.abs(controller_.getRightX()) > Constants.kDeadzone) ? 
+            -controller_.getRightX() * Constants.kRotationMultiplier : 0;
         boolean robot_oriented = controller_.rightTrigger(0.2).getAsBoolean();
         boolean hold_position_mode = controller_.x().getAsBoolean();
 
@@ -58,5 +59,8 @@ public class DriveTeleop extends CommandBase {
         public static final double kTranslationMultiplierRegular = 2.5;
         public static final double kTranslationMultiplierPrecise = 1.3;
         public static final double kRotationMultiplier = Math.PI;
+
+        // Deadzone
+        public static final double kDeadzone = 0.05;
     }
 }
