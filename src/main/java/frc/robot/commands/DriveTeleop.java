@@ -43,6 +43,8 @@ public class DriveTeleop extends CommandBase {
         boolean hold_position_mode = controller_.x().getAsBoolean();
 
         // Slew rate limiter
+        limiter_ = new SlewRateLimiter(Constants.kSlewRateLimiter);
+        
         limiter_.calculate(Constants.kSlewRateLimiter);
         xSpeed = limiter_.calculate(xSpeed);
         ySpeed = limiter_.calculate(ySpeed);
