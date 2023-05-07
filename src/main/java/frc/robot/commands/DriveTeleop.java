@@ -55,6 +55,12 @@ public class DriveTeleop extends CommandBase {
             ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rSpeed,
                 robot_state_.getPosition().getRotation());
 
+        // Snap to angle
+        controller_.pov(0).onTrue(new TurnToAngle(0, drive_, robot_state_));
+        controller_.pov(90).onTrue(new TurnToAngle(90, drive_, robot_state_));
+        controller_.pov(180).onTrue(new TurnToAngle(180, drive_, robot_state_));
+        controller_.pov(270).onTrue(new TurnToAngle(270, drive_, robot_state_));
+
         // Set speeds
         if (hold_position_mode) {
             drive_.HoldPosition();

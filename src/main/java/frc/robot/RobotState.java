@@ -33,6 +33,11 @@ public class RobotState {
         return pose_estimator_.getEstimatedPosition();
     }
 
+    // Get Degree
+    public double getDegree() {
+        return pose_estimator_.getEstimatedPosition().getRotation().getDegrees();
+    }
+
     // Reset Position
     public void reset(Pose2d pose) {}
 }
