@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotState;
 import frc.robot.subsystems.Drive;
@@ -56,10 +57,10 @@ public class DriveTeleop extends CommandBase {
                 robot_state_.getPosition().getRotation());
 
         // Snap to angle
-        controller_.pov(0).onTrue(new TurnToAngle(0, drive_, robot_state_));
-        controller_.pov(90).onTrue(new TurnToAngle(90, drive_, robot_state_));
-        controller_.pov(180).onTrue(new TurnToAngle(180, drive_, robot_state_));
-        controller_.pov(270).onTrue(new TurnToAngle(270, drive_, robot_state_));
+        controller_.pov(0).onTrue(new InstantCommand(() -> drive_.setRobotAngle(0)));
+        controller_.pov(90).onTrue(new InstantCommand(() -> drive_.setRobotAngle(90)));
+        controller_.pov(180).onTrue(new InstantCommand(() -> drive_.setRobotAngle(180)));
+        controller_.pov(270).onTrue(new InstantCommand(() -> drive_.setRobotAngle(270)));
 
         // Set speeds
         if (hold_position_mode) {

@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -32,6 +34,9 @@ public class Drive extends SubsystemBase {
     // IO
     private final IO io_ = new IO();
     private OutputType output_type_ = OutputType.OPEN_LOOP;
+
+    // PID Controllers
+    PIDController turn_controller_ = new PIDController(Constants.kP, 0, 0);
 
     // Constructor
     public Drive() {
@@ -106,6 +111,23 @@ public class Drive extends SubsystemBase {
         back_right_.setAngle(45);
     }
 
+    /**
+     * Sets Robot angle - relative to field
+     * @param target_angle_degs In Degrees
+     */
+    public void setRobotAngle(double target_angle_degs) {
+        // Convert degrees to radians
+        double target_angle_rad = Math.toRadians(target_angle_degs);
+
+        // Calculate angle correction
+        double angle_correction = turn_controller_.calculate(
+            getAngle().getRadians(), target_angle_rad);
+        
+        // Set speeds using angle correction
+        ChassisSpeeds speeds = new ChassisSpeeds(0, 0, angle_correction);
+        setSpeeds(speeds);
+    }
+
     // Output Type
     public enum OutputType {
         VELOCITY, OPEN_LOOP
@@ -163,5 +185,8 @@ public class Drive extends SubsystemBase {
         public static final Translation2d kFrontRightLocation = new Translation2d(0.27, -0.27);
         public static final Translation2d kBackLeftLocation = new Translation2d(-0.27, 0.27);
         public static final Translation2d kBackRightLocation = new Translation2d(-0.27, -0.27);
+
+        // PID Constants
+        public static final double kP = 0.35;
     }
 }
