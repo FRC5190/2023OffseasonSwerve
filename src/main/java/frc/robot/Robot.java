@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.Autonomous;
 import frc.robot.commands.DriveTeleop;
 import frc.robot.subsystems.Drive;
 
@@ -26,6 +27,9 @@ public class Robot extends TimedRobot {
     // Xbox Controller
     private final CommandXboxController controller_ = new CommandXboxController(0);
 
+    // Autonomous
+    private final Autonomous auto_ = new Autonomous();
+
     @Override
     public void robotInit() {
         drive_.setDefaultCommand(new DriveTeleop(drive_, robot_state_, controller_));
@@ -41,7 +45,9 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {}
 
     @Override
-    public void autonomousPeriodic() {}
+    public void autonomousPeriodic() {
+        auto_.simulationPeriodic();
+    }
 
     @Override
     public void teleopInit() {
