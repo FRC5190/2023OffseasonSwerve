@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
     private final CommandXboxController controller_ = new CommandXboxController(0);
 
     // Autonomous
-    private final Autonomous auto_ = new Autonomous();
+    private final Autonomous auto_ = new Autonomous(drive_);
 
     @Override
     public void robotInit() {
@@ -42,7 +42,10 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void autonomousInit() {}
+    public void autonomousInit() {
+        // Command that does Path following
+        auto_.run();
+    }
 
     @Override
     public void autonomousPeriodic() {
