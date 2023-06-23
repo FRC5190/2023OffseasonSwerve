@@ -43,6 +43,8 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {}
 
+    // Might need this in the future 
+    // robot_state_.reset(robot_state_.getPosition());
     @Override
     public void teleopInit() {
     }
