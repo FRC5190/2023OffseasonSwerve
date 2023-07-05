@@ -7,9 +7,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.auto.AutoSelector;
 import frc.robot.commands.DriveTeleop;
 import frc.robot.subsystems.Drive;
-import frc.robot.RobotState;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -27,6 +27,9 @@ public class Robot extends TimedRobot {
     // Xbox Controller
     private final CommandXboxController controller_ = new CommandXboxController(0);
 
+    // Autonomous
+    private final AutoSelector auto_selector_ = new AutoSelector(drive_);
+
     @Override
     public void robotInit() {
         drive_.setDefaultCommand(new DriveTeleop(drive_, robot_state_, controller_));
@@ -39,7 +42,10 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void autonomousInit() {}
+    public void autonomousInit() {
+        auto_selector_.run().schedule();
+        System.out.println("Autonomous Started!");
+    }
 
     @Override
     public void autonomousPeriodic() {}

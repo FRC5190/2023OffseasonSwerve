@@ -98,6 +98,14 @@ public class Drive extends SubsystemBase {
         setSpeeds(speeds, OutputType.VELOCITY);
     }
 
+    // Set Module States
+    public void setModuleStates(SwerveModuleState[] desired_states) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(desired_states, Constants.kMaxSpeed);
+        for (int i = 0; i < modules_.length; i++){
+            modules_[i].setDesiredState(desired_states[i], output_type_);
+        }
+    }
+
     // Puts wheels in X shape for brake
     public void HoldPosition() {
         front_left_.setAngle(45);

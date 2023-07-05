@@ -46,5 +46,7 @@ public class RobotState {
 
     // Reset Position
     // Add this after testing
-    public void reset(Pose2d pose) {}
+    public void reset(Pose2d pose) {
+        pose_estimator_.resetPosition(getRotation2d(), drive_.getSwerveModulePositions(), pose);
+    }
 }
