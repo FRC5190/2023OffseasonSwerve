@@ -148,6 +148,7 @@ public class Drive extends SubsystemBase {
             kBackLeftConfig.steer_id = 6;
             kBackLeftConfig.cancoder_id = 13;
             kBackLeftConfig.module_offset_deg = 295.57;
+            // (228.00 + -46.799534) + 180;
 
             kBackRightConfig.drive_id = 7;
             kBackRightConfig.steer_id = 8;
