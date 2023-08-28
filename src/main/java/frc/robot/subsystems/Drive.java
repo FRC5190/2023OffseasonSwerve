@@ -64,6 +64,8 @@ public class Drive extends SubsystemBase {
                 modules_[i].getDriveVelocity());
             SmartDashboard.putNumber(String.format("Module [%d] Angle", i),
                 modules_[i].getSteerPosition().getDegrees());
+            SmartDashboard.putNumber(String.format("Module [%d] Setpoint", i),
+                Math.toDegrees(modules_[i].getPIDSetpoint()));
         }
     }
 

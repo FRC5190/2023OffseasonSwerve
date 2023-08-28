@@ -104,6 +104,10 @@ public class SwerveModule {
         steer_encoder_.setPosition(Math.toRadians(getCANCoderDeg()));
     }
 
+    public double getPIDSetpoint() {
+        return steer_pid_controller_.getSetpoint();
+    }
+
     /**
      * Sets Steer angle for individual module
      * @param desired_angle In Degrees
