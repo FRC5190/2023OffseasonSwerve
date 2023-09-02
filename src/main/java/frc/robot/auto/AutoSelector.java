@@ -22,10 +22,10 @@ public class AutoSelector {
 
     public Command run() {
         if(routine_chooser_.getSelected() == Routine.GO_FORWARD_WHILE_TURNING) {
-            return drive_trajectory_.followTrajectoryCommand(Trajectories.forward_trajectory, false);
+            return drive_trajectory_.followTrajectoryCommand(Trajectories.forward_trajectory, true);
         }
         else {
-            return drive_trajectory_.followTrajectoryCommand(Trajectories.forward_trajectory, false);
+            return drive_trajectory_.followTrajectoryCommand(Trajectories.forward_trajectory, true);
         }
     }
 
@@ -43,6 +43,7 @@ public class AutoSelector {
 
     public static class Trajectories {
         public static final PathPlannerTrajectory forward_trajectory = PathPlanner.loadPath(
-            "GO_FORWARD_WHILE_TURNING", new PathConstraints(1.0, 0.5));
+            "path_new", new PathConstraints(0.5, 0.50));
+        // public static final Trajectory traj = (Trajectory)forward_trajectory;
     }
 }

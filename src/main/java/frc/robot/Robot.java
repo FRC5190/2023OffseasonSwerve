@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.auto.AutoSelector;
@@ -33,12 +34,22 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         drive_.setDefaultCommand(new DriveTeleop(drive_, robot_state_, controller_));
+        
     }
 
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         robot_state_.update();
+
+        // SmartDashboard Logging
+        SmartDashboard.putNumber("Position X", robot_state_.getPosition().getX());
+        SmartDashboard.putNumber("Position Y", robot_state_.getPosition().getY());
+
+        SmartDashboard.putNumber("Auto X Controller", Constants.xController.getSetpoint());
+        SmartDashboard.putNumber("Auto Y Controller", Constants.xController.getSetpoint());
+        SmartDashboard.putNumber("Auto Theta Controller", Constants.thetaController.getPositionError());
+        SmartDashboard.putNumber("X Controller point", Constants.xController.getVelocityError());
     }
 
     @Override
