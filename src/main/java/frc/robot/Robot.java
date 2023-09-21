@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.auto.AutoSelector;
+import frc.robot.auto.DriveTrajectory;
 import frc.robot.commands.DriveTeleop;
 import frc.robot.subsystems.Drive;
 
@@ -29,6 +30,7 @@ public class Robot extends TimedRobot {
     private final CommandXboxController controller_ = new CommandXboxController(0);
 
     // Autonomous
+    private final DriveTrajectory drive_trajectory_ = new DriveTrajectory(drive_);
     private final AutoSelector auto_selector_ = new AutoSelector(drive_);
 
     @Override
@@ -45,6 +47,7 @@ public class Robot extends TimedRobot {
         // SmartDashboard Logging
         SmartDashboard.putNumber("Position X", robot_state_.getPosition().getX());
         SmartDashboard.putNumber("Position Y", robot_state_.getPosition().getY());
+        SmartDashboard.putNumber("Robot Angle", robot_state_.getDegree());
 
         SmartDashboard.putNumber("Auto X Controller", Constants.xController.getSetpoint());
         SmartDashboard.putNumber("Auto Y Controller", Constants.xController.getSetpoint());
@@ -54,7 +57,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        auto_selector_.run().schedule();
+        drive_trajectory_.followTrajectoryCommand(true).schedule();
         System.out.println("Autonomous Started!");
     }
 

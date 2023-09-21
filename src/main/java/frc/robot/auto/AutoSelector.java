@@ -22,10 +22,10 @@ public class AutoSelector {
 
     public Command run() {
         if(routine_chooser_.getSelected() == Routine.GO_FORWARD_WHILE_TURNING) {
-            return drive_trajectory_.followTrajectoryCommand(Trajectories.forward_trajectory, true);
+            return drive_trajectory_.followTrajectoryCommand(true);
         }
         else {
-            return drive_trajectory_.followTrajectoryCommand(Trajectories.forward_trajectory, true);
+            return drive_trajectory_.followTrajectoryCommand(true);
         }
     }
 
