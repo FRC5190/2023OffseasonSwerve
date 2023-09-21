@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Arm extends SubsystemBase{
+public class Arm extends SubsystemBase {
     // Motor Controller
     private final CANSparkMax arm_motor_;
 
@@ -36,7 +36,6 @@ public class Arm extends SubsystemBase{
     private final SingleJointedArmSim physics_sim_;
     private final SimDeviceSim arm_motor_sim_;
 
-
     public Arm() {
         // Initialize Motor Controller
         arm_motor_ = new CANSparkMax(Constants.kMotorId, MotorType.kBrushless);
@@ -52,16 +51,15 @@ public class Arm extends SubsystemBase{
         // Initialize Control
         ff_ = new ArmFeedforward(Constants.kS, Constants.kG, Constants.kV, Constants.kA);
         fb_ = new ProfiledPIDController(Constants.kP, 0, 0, new TrapezoidProfile.Constraints(
-            Constants.kMaxVelocity, Constants.kMaxAcceleration));
-        
+                Constants.kMaxVelocity, Constants.kMaxAcceleration));
+
         // Initialize Simulation
         physics_sim_ = new SingleJointedArmSim(
-            LinearSystemId.identifyPositionSystem(Constants.kV, Constants.kA),
-            DCMotor.getNEO(1), Constants.kGearRatio, Constants.kArmLength, Constants.kMinAngle,
-            Constants.kMaxAngle, false
-        );
+                LinearSystemId.identifyPositionSystem(Constants.kV, Constants.kA),
+                DCMotor.getNEO(1), Constants.kGearRatio, Constants.kArmLength, Constants.kMinAngle,
+                Constants.kMaxAngle, false);
         arm_motor_sim_ = new SimDeviceSim("SPARK MAX [" + Constants.kMotorId + "]");
-        
+
         // Safety
         arm_motor_.setSmartCurrentLimit((int) Constants.kCurrentLimit);
         arm_motor_.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, (float) Constants.kMinAngle);
@@ -79,23 +77,22 @@ public class Arm extends SubsystemBase{
         io_.angular_velocity = encoder_.getVelocity();
         io_.current = arm_motor_.getOutputCurrent();
 
-        if(io_.wants_zero) {
+        if (io_.wants_zero) {
             io_.wants_zero = false;
             encoder_.setPosition(Constants.kMaxAngle);
         }
 
         // Reset Controller
-        if(reset_pid_) {
+        if (reset_pid_) {
             reset_pid_ = false;
             fb_.reset(io_.angle, io_.angular_velocity);
         }
 
-
         // Write Outputs
-        switch(output_type_) {
+        switch (output_type_) {
             case PERCENT:
                 arm_motor_.set(io_.demand);
-                
+
                 // Set simulated inputs
                 if (RobotBase.isSimulation())
                     arm_motor_sim_.getDouble("Applied Output").set(io_.demand * 12);
@@ -117,7 +114,7 @@ public class Arm extends SubsystemBase{
         // Update physics sim with inputs
         double voltage = arm_motor_.getAppliedOutput();
         if (output_type_ == OutputType.ANGLE)
-        voltage -= Constants.kG * Math.cos(io_.angle);
+            voltage -= Constants.kG * Math.cos(io_.angle);
         physics_sim_.setInputVoltage(voltage);
 
         // Update physics sim forward in time
@@ -171,7 +168,7 @@ public class Arm extends SubsystemBase{
         PERCENT, ANGLE
     }
 
-    //IO
+    // IO
     private static class PeriodicIO {
         // Inputs
         double angle;
@@ -185,7 +182,7 @@ public class Arm extends SubsystemBase{
 
     // Constants
     private static class Constants {
-        // Motor Controller 
+        // Motor Controller
         public static final int kMotorId = 9;
 
         // Physical Constants
@@ -195,12 +192,12 @@ public class Arm extends SubsystemBase{
         public static final double kArmLength = 0.30;
 
         // Feedforward (Run Sysid)
-        public static final double kA = 0.041608; //volts * seconds^2 / radians
-        public static final double kG = 0.38624; //volts
-        public static final double kS = 0.06490; //volts
-        public static final double kV = 2.20370; //volts * seconds/radians
+        public static final double kA = 0.041608; // volts * seconds^2 / radians
+        public static final double kG = 0.38624; // volts
+        public static final double kS = 0.06490; // volts
+        public static final double kV = 2.20370; // volts * seconds/radians
 
-        // Feedback 
+        // Feedback
         public static double kMaxVelocity = 3.14;
         public static double kMaxAcceleration = 3.14;
         public static double kP = 0.01;

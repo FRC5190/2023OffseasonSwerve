@@ -7,6 +7,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Superstructure.Position;
+import frc.robot.auto.AutoSelector;
 import frc.robot.commands.DriveTeleop;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drive;
@@ -31,23 +33,35 @@ public class Robot extends TimedRobot {
     // Xbox Controller
     private final CommandXboxController driver_controller_ = new CommandXboxController(0);
     private final CommandXboxController operator_controller_ = new CommandXboxController(1);
-    
+
+    // Telemetry
+    private final Telemetry telemetry_ = new Telemetry(robot_state_, arm_);
+
+    // Autonomous
+    AutoSelector auto_selector_ = new AutoSelector();
+
 
     @Override
     public void robotInit() {
         drive_.setDefaultCommand(new DriveTeleop(drive_, robot_state_, driver_controller_));
 
         setupTeleopControls();
+        superstructure_.setPosition(Position.STOW);
     }
 
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         robot_state_.update();
+        telemetry_.periodic();
     }
 
     @Override
-    public void autonomousInit() {}
+    public void autonomousInit() {
+        // superstructure_.setPosition(Position.CUBE_L1);
+        auto_selector_.run(robot_state_, superstructure_, arm_);
+        System.out.println("AUTO ENABLED");
+    }
 
     @Override
     public void autonomousPeriodic() {}
