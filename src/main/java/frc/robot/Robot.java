@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveTeleop;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drive;
 
 /**
@@ -19,16 +20,24 @@ import frc.robot.subsystems.Drive;
 public class Robot extends TimedRobot {
     // Subsystems
     private final Drive drive_ = new Drive();
+    private final Arm arm_ = new Arm();
 
     // Robot State
     private final RobotState robot_state_ = new RobotState(drive_);
 
+    // Superstructure
+    private final Superstructure superstructure_ = new Superstructure(arm_);
+
     // Xbox Controller
-    private final CommandXboxController controller_ = new CommandXboxController(0);
+    private final CommandXboxController driver_controller_ = new CommandXboxController(0);
+    private final CommandXboxController operator_controller_ = new CommandXboxController(1);
+    
 
     @Override
     public void robotInit() {
-        drive_.setDefaultCommand(new DriveTeleop(drive_, robot_state_, controller_));
+        drive_.setDefaultCommand(new DriveTeleop(drive_, robot_state_, driver_controller_));
+
+        setupTeleopControls();
     }
 
     @Override
@@ -67,4 +76,18 @@ public class Robot extends TimedRobot {
 
     @Override
     public void simulationPeriodic() {}
+
+    // Teleop Controls
+    public void setupTeleopControls() {
+        // Add Intake wheel code
+
+        //  * X:       Stow
+        operator_controller_.x().onTrue(superstructure_.setPosition(Superstructure.Position.STOW));
+        //  * A:       Intake
+        operator_controller_.a().onTrue(superstructure_.setPosition(Superstructure.Position.INTAKE));
+        //  * B:       L1 Cube
+        operator_controller_.b().onTrue(superstructure_.setPosition(Superstructure.Position.CUBE_L1));
+        //  * Y:       L2 Cube
+        operator_controller_.y().onTrue(superstructure_.setPosition(Superstructure.Position.CUBE_L2));
+    }
 }
