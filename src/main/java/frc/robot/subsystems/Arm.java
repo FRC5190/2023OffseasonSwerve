@@ -41,7 +41,7 @@ public class Arm extends SubsystemBase {
         // Initialize Motor Controller
         arm_motor_ = new CANSparkMax(Constants.kMotorId, MotorType.kBrushless);
         arm_motor_.restoreFactoryDefaults();
-        arm_motor_.setInverted(true);
+        arm_motor_.setInverted(false);
         arm_motor_.setIdleMode(IdleMode.kCoast);
 
         // Initialize Encoder
@@ -156,6 +156,10 @@ public class Arm extends SubsystemBase {
 
     public double getAngularVelocitySetpoint() {
         return fb_.getSetpoint().velocity;
+    }
+
+    public double getPositionSetpoint() {
+        return fb_.getSetpoint().position;
     }
 
     public double getCurrent() {

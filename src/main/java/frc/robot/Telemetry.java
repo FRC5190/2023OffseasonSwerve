@@ -39,7 +39,7 @@ public class Telemetry {
 
         superstructure_.getRoot("Structure Root", 0.33, 0.1).append(
             new MechanismLigament2d("Structure", 0.5, 0));
-        MechanismLigament2d arm_out = superstructure_.getRoot("Carriage Root", 0.35, 0.1).append(
+        MechanismLigament2d arm_out = superstructure_.getRoot("Carriage Root", 0.80, 0.15).append(
             new MechanismLigament2d("Arm", 0.15, 0, 3, new Color8Bit(Color.kOrangeRed)));
         
         // Update Visualization

@@ -17,6 +17,7 @@ import frc.robot.auto.AutoSelector;
 import frc.robot.commands.DriveTeleop;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Intake;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -28,6 +29,7 @@ public class Robot extends TimedRobot {
     // Subsystems
     private final Drive drive_ = new Drive();
     private final Arm arm_ = new Arm();
+    private final Intake intake_ = new Intake();
 
     // Robot State
     private final RobotState robot_state_ = new RobotState(drive_);
@@ -59,13 +61,20 @@ public class Robot extends TimedRobot {
         CommandScheduler.getInstance().run();
         robot_state_.update();
         telemetry_.periodic();
+        SmartDashboard.putString("Intake State", intake_.getState());
     }
 
     public Command test() {
         return new SequentialCommandGroup(
-            new InstantCommand(()-> superstructure_.setPosition(Position.STOW)),
-            new WaitCommand(5.0),
-            superstructure_.setPosition(Position.CUBE_L1)
+            superstructure_.setPosition(Position.STOW),
+            new WaitCommand(3.0),
+            superstructure_.setPosition(Position.CUBE_L1),
+            new WaitCommand(3.0),
+            superstructure_.setPosition(Position.CUBE_L2),
+            new WaitCommand(3.0),
+            superstructure_.setPosition(Position.INTAKE),
+            new WaitCommand(3.0),
+            superstructure_.setPosition(Position.STOW)
         );
     }
 
@@ -86,9 +95,10 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
 
-        System.out.println(superstructure_.getState());
+        SmartDashboard.putString("State", superstructure_.getState());
+        SmartDashboard.putNumber("Arm Setpoint", arm_.getPositionSetpoint());
         // System.out.println(arm_.getAngle());
-        SmartDashboard.putNumber("Arm Angle", arm_.getAngle());
+        SmartDashboard.putNumber("Arm Angle", Math.toDegrees(arm_.getAngle()));
         
     }
 
@@ -113,6 +123,16 @@ public class Robot extends TimedRobot {
     // Teleop Controls
     public void setupTeleopControls() {
         // Add Intake wheel code
+        //  * Left Trigger:  Intake
+        driver_controller_.rightTrigger(0.4).onTrue(
+            new InstantCommand(() -> intake_.setPercent(0.4)));
+        driver_controller_.rightTrigger(0.4).onFalse(
+            new InstantCommand(() -> intake_.setPercent(0.0)));
+        //  * Right Trigger: Outtake
+        driver_controller_.leftTrigger(0.4).onTrue(
+            new InstantCommand(() -> intake_.setPercent(-0.4)));
+        driver_controller_.leftTrigger(0.4).onFalse(
+            new InstantCommand(() -> intake_.setPercent(0.0)));
 
         //  * X:       Stow
         operator_controller_.x().onTrue(superstructure_.setPosition(Superstructure.Position.STOW));
