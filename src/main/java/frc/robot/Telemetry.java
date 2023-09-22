@@ -72,6 +72,6 @@ public class Telemetry {
     public void periodic() {
         for (Runnable fn : periodic_registry_)
             fn.run();
-        System.out.println(periodic_registry_);
+        // System.out.println(periodic_registry_);
     }
 }

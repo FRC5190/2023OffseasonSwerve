@@ -19,7 +19,9 @@ public class Superstructure {
 
 
     public Command setPosition(Position pos) {
+        System.out.println("x");
         return new SequentialCommandGroup(
+            new InstantCommand(() -> System.out.println("inside setposition")),
             new InstantCommand(() -> this.state = pos.posname),
             new ArmToPosition(arm_, pos.angle).withTimeout(3)
         );

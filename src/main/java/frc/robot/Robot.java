@@ -5,7 +5,12 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Superstructure.Position;
 import frc.robot.auto.AutoSelector;
@@ -46,7 +51,7 @@ public class Robot extends TimedRobot {
         drive_.setDefaultCommand(new DriveTeleop(drive_, robot_state_, driver_controller_));
 
         setupTeleopControls();
-        superstructure_.setPosition(Position.STOW);
+        // superstructure_.setPosition(Position.STOW);
     }
 
     @Override
@@ -56,10 +61,17 @@ public class Robot extends TimedRobot {
         telemetry_.periodic();
     }
 
+    public Command test() {
+        return new SequentialCommandGroup(
+            new InstantCommand(()-> superstructure_.setPosition(Position.STOW)),
+            new WaitCommand(5.0),
+            superstructure_.setPosition(Position.CUBE_L1)
+        );
+    }
+
     @Override
     public void autonomousInit() {
         // superstructure_.setPosition(Position.CUBE_L1);
-        auto_selector_.run(robot_state_, superstructure_, arm_);
         System.out.println("AUTO ENABLED");
     }
 
@@ -68,10 +80,17 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        test().schedule();
     }
 
     @Override
-    public void teleopPeriodic() {}
+    public void teleopPeriodic() {
+
+        System.out.println(superstructure_.getState());
+        // System.out.println(arm_.getAngle());
+        SmartDashboard.putNumber("Arm Angle", arm_.getAngle());
+        
+    }
 
     @Override
     public void disabledInit() {}

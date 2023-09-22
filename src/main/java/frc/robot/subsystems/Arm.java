@@ -14,6 +14,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.SimDeviceSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Arm extends SubsystemBase {
@@ -96,6 +97,8 @@ public class Arm extends SubsystemBase {
                 // Set simulated inputs
                 if (RobotBase.isSimulation())
                     arm_motor_sim_.getDouble("Applied Output").set(io_.demand * 12);
+                    SmartDashboard.putNumber("ARM angle", getAngle());
+                    SmartDashboard.putNumber("ARM Demand", io_.demand);
                 break;
             case ANGLE:
                 double feedback = fb_.calculate(io_.angle);
