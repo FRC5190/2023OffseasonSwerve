@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.Drive;
 
 public class RobotState {
@@ -38,6 +39,13 @@ public class RobotState {
         return pose_estimator_.getEstimatedPosition().getRotation().getDegrees();
     }
 
+    // Get Rotation2d
+    public Rotation2d getRotation2d() {
+        return pose_estimator_.getEstimatedPosition().getRotation();
+    }
+
     // Reset Position
-    public void reset(Pose2d pose) {}
+    public void reset(Pose2d pose) {
+        pose_estimator_.resetPosition(getRotation2d(), drive_.getSwerveModulePositions(), pose);
+    }
 }

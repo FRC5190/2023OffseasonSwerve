@@ -35,7 +35,7 @@ public class Robot extends TimedRobot {
     private final RobotState robot_state_ = new RobotState(drive_);
 
     // Superstructure
-    private final Superstructure superstructure_ = new Superstructure(arm_);
+    private final Superstructure superstructure_ = new Superstructure(arm_, intake_);
 
     // Xbox Controller
     private final CommandXboxController driver_controller_ = new CommandXboxController(0);

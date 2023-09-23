@@ -5,16 +5,19 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.ArmToPosition;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Intake;
 
 public class Superstructure {
     // Subsystems
     private final Arm arm_;
+    private final Intake intake_;
 
     // Position State
     public String state = "STOW";
 
-    public Superstructure(Arm arm) {
+    public Superstructure(Arm arm, Intake intake) {
         arm_ = arm;
+        intake_ = intake;
     }
 
 
@@ -29,6 +32,10 @@ public class Superstructure {
 
     public String getState() {
         return state;
+    }
+
+    public Command setIntakePercent(double value) {
+        return new InstantCommand(() -> intake_.setPercent(value));
     }
 
 

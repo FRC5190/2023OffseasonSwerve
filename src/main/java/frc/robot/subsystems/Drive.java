@@ -61,17 +61,7 @@ public class Drive extends SubsystemBase {
 
         // Calculate outputs
         SwerveModuleState[] module_states = kinematics_.toSwerveModuleStates(io_.speeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(module_states, Constants.kMaxSpeed);
-
-        // Set outputs and telemetry
-        for (int i = 0; i < modules_.length; i++) {
-            modules_[i].setDesiredState(module_states[i], output_type_);
-
-            SmartDashboard.putNumber(String.format("Module [%d] Speed", i),
-                modules_[i].getDriveVelocity());
-            SmartDashboard.putNumber(String.format("Module [%d] Angle", i),
-                modules_[i].getSteerPosition().getDegrees());
-        }
+        setModuleStates(module_states);
     }
 
     // Get Module Positions
@@ -103,6 +93,19 @@ public class Drive extends SubsystemBase {
     // Set Speeds (Closed Loop)
     public void setSpeeds(ChassisSpeeds speeds) {
         setSpeeds(speeds, OutputType.VELOCITY);
+    }
+
+    // Set Module States
+    public void setModuleStates(SwerveModuleState[] desired_states) {
+        SwerveDriveKinematics.desaturateWheelSpeeds(desired_states, Constants.kMaxSpeed);
+        for (int i = 0; i < modules_.length; i++){
+            modules_[i].setDesiredState(desired_states[i], output_type_);
+
+            SmartDashboard.putNumber(String.format("Module [%d] Speed", i),
+                modules_[i].getDriveVelocity());
+            SmartDashboard.putNumber(String.format("Module [%d] Angle", i),
+                modules_[i].getSteerPosition().getDegrees());
+        }
     }
 
     // Puts wheels in X shape for brake

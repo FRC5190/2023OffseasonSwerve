@@ -193,7 +193,7 @@ public class Arm extends SubsystemBase {
         public static final int kMotorId = 9;
 
         // Physical Constants
-        public static final double kGearRatio = 22.0 / 34.0;
+        public static final double kGearRatio = 49.0 * 34.0 / 22.0;
         public static final double kMinAngle = Math.toRadians(-40);
         public static final double kMaxAngle = Math.toRadians(170);
         public static final double kArmLength = 0.30;

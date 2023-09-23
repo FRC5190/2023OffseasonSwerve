@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import javax.lang.model.util.ElementScanner14;
-
 import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
