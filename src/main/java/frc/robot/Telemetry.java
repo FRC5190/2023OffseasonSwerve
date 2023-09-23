@@ -3,6 +3,7 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.auto.AutoSelector;
 import frc.robot.subsystems.Arm;
 
 public class Telemetry {
@@ -23,7 +25,7 @@ public class Telemetry {
     private final Mechanism2d superstructure_;
 
 
-    public Telemetry(RobotState robot_state, Arm arm) {
+    public Telemetry(RobotState robot_state, Arm arm, AutoSelector auto_selector) {
         // Shuffleboard tab
         ShuffleboardTab tab_ = Shuffleboard.getTab("2023 Offseason");
         
@@ -31,7 +33,10 @@ public class Telemetry {
         // Field Visualization
         field_ = new Field2d();
         tab_.add("Field", field_);
-        periodic_registry_.add(() -> field_.setRobotPose(robot_state.getPosition()));
+        if (Robot.isReal())
+            periodic_registry_.add(() -> field_.setRobotPose(robot_state.getPosition()));
+        if(!Robot.isReal())
+            field_.setRobotPose(null);
 
         // Mechanism Visualization
         superstructure_ = new Mechanism2d(1.2, 1.2);
@@ -67,7 +72,18 @@ public class Telemetry {
         arm_layout.addNumber("Velocity Setpoint (dps)",
                 () -> Math.toDegrees(arm.getAngularVelocitySetpoint()))
             .withPosition(0, 1);
+        
+        ShuffleboardLayout auto_layout = tab_.getLayout("Autonomous", BuiltInLayouts.kList)
+            .withSize(2, 2)
+            .withPosition(0, 0);
+        auto_layout.add("Routine", auto_selector.getRoutineChooser())
+            .withSize(2,1);
     }
+
+    // public void setRobotPoseSim(Pose2d pose) {
+    //     if(!Robot.isReal())
+    //         field_.setRobotPose(pose);      
+    // }
 
     public void periodic() {
         for (Runnable fn : periodic_registry_)

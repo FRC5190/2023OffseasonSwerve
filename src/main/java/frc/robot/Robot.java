@@ -37,15 +37,17 @@ public class Robot extends TimedRobot {
     // Superstructure
     private final Superstructure superstructure_ = new Superstructure(arm_, intake_);
 
+    // Autonomous
+    private final AutoSelector auto_selector_ = new AutoSelector();
+
     // Xbox Controller
     private final CommandXboxController driver_controller_ = new CommandXboxController(0);
     private final CommandXboxController operator_controller_ = new CommandXboxController(1);
 
     // Telemetry
-    private final Telemetry telemetry_ = new Telemetry(robot_state_, arm_);
+    private final Telemetry telemetry_ = new Telemetry(robot_state_, arm_, auto_selector_);
 
-    // Autonomous
-    AutoSelector auto_selector_ = new AutoSelector();
+ 
 
 
     @Override
@@ -82,6 +84,10 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         // superstructure_.setPosition(Position.CUBE_L1);
         System.out.println("AUTO ENABLED");
+
+        
+        // auto_selector_.run(robot_state_, superstructure_, arm_, drive_).schedule();
+        
     }
 
     @Override

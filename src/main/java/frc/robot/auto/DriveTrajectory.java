@@ -27,26 +27,27 @@ public class DriveTrajectory extends CommandBase{
     }
 
 
-    @Override
-    public void initialize() {
-        timer_.start();
-    }
+    // @Override
+    // public void initialize() {
+    //     timer_.start();
+    // }
 
-    @Override
-    public void execute() {
-        t = timer_.get();
-    }
+    // @Override
+    // public void execute() {
+    //     t = timer_.get();
+    // }
 
-    public Pose2d getTrajectoryPose(double time) {
-        final PathPlannerState state = (PathPlannerState) traj_.sample(t);
-        return new Pose2d(new Translation2d(state.poseMeters.getX(), state.poseMeters.getY()), state.holonomicRotation);
-    }
+    // public Pose2d getTrajectoryPose(double time) {
+    //     final PathPlannerState state = (PathPlannerState) traj_.sample(t);
+    //     return new Pose2d(new Translation2d(state.poseMeters.getX(), state.poseMeters.getY()), state.holonomicRotation);
+    // }
 
     public Command followTrajectoryCommand(boolean isFirstTrajectory, RobotState robot_state_, Drive drive_) {
         return new SequentialCommandGroup(
             new InstantCommand(() -> {
                 if(isFirstTrajectory) {
-                    robot_state_.reset(traj_.getInitialHolonomicPose());
+                    System.out.println("Resetting Pose");
+                    robot_state_.resetPose(traj_.getInitialHolonomicPose());
                     SmartDashboard.putNumber("Trajectory Total Time", traj_.getTotalTimeSeconds());
                 }
             }),
@@ -64,9 +65,9 @@ public class DriveTrajectory extends CommandBase{
         );
     }
 
-    public double getTrajectoryTime() {
-        return traj_.getTotalTimeSeconds();
-    }
+    // public double getTrajectoryTime() {
+    //     return traj_.getTotalTimeSeconds();
+    // }
 
     public static class Constants {
         public static double kP = 0.5;
